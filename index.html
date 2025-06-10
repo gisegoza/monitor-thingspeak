@@ -39,7 +39,7 @@
         }
         
         .logo {
-            height: 80px;
+            height: 80px; /* Asegúrate de que el tamaño sea adecuado para tu logo */
             margin-bottom: 10px;
         }
         
@@ -141,7 +141,7 @@
             }
             
             .logo {
-                height: 60px;
+                height: 60px; /* Asegúrate de que el tamaño sea adecuado para tu logo */
             }
         }
     </style>
@@ -172,7 +172,7 @@
             </div>
             
             <div class="chart-container">
-                <h2>Historial de Datos</h2>
+                <h2>Historial de Datos (Últimas 24 horas)</h2>
                 <canvas id="chart"></canvas>
             </div>
         </div>
@@ -281,8 +281,9 @@
         // Función para obtener datos de ThingSpeak
         async function fetchData() {
             try {
+                // Modificación en la URL para obtener datos de las últimas 24 horas (days=1)
                 const response = await fetch(
-                    `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=24`
+                    `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&days=1`
                 );
                 const data = await response.json();
                 
@@ -291,9 +292,11 @@
                     tempElement.textContent = parseFloat(lastFeed.field1).toFixed(1);
                     humidityElement.textContent = parseFloat(lastFeed.field2).toFixed(1);
                     
-                    chart.data.labels = data.feeds.map((feed, index) => {
+                    chart.data.labels = data.feeds.map((feed) => {
                         const date = new Date(feed.created_at);
-                        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                        // Formato para mostrar fecha y hora (ej. '08/06 14:30')
+                        return date.toLocaleDateString('es-ES', {month: '2-digit', day: '2-digit'}) + ' ' +
+                               date.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
                     });
                     chart.data.datasets[0].data = data.feeds.map(feed => parseFloat(feed.field1));
                     chart.data.datasets[1].data = data.feeds.map(feed => parseFloat(feed.field2));
