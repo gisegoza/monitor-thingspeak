@@ -3,65 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor Universitario - ThingSpeak</title>
+    <title>EMI WEATHER - Monitoreo Meteorológico</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --emi-blue: #003366;
+            --emi-gold: #D4AF37;
+            --emi-light: #E6F2FF;
+            --emi-dark: #001A33;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--emi-light);
+            color: var(--emi-dark);
+        }
+        
+        .header {
+            background-color: var(--emi-blue);
+            color: white;
+            padding: 1rem;
             text-align: center;
-            margin: 20px;
-            background-color: #f5f5f5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        .container {
+        
+        .logo-container {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            margin-bottom: 1rem;
         }
-        .data-box {
+        
+        .logo {
+            height: 80px;
+            margin-right: 20px;
+        }
+        
+        .title-container h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .title-container p {
+            margin: 0.2rem 0 0;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 80%;
-            max-width: 600px;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 6px 18px rgba(0, 51, 102, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid var(--emi-gold);
         }
-        canvas {
-            margin-top: 20px;
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 51, 102, 0.15);
+        }
+        
+        .card h2 {
+            color: var(--emi-blue);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+        
+        .card h2 i {
+            margin-right: 10px;
+            color: var(--emi-gold);
+        }
+        
+        .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: var(--emi-blue);
+        }
+        
+        .unit {
+            font-size: 1.2rem;
+            color: var(--emi-dark);
+        }
+        
+        .chart-container {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 6px 18px rgba(0, 51, 102, 0.1);
+        }
+        
+        .chart-container h2 {
+            color: var(--emi-blue);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        
+        footer {
+            background-color: var(--emi-blue);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .title-container h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Escudo_de_la_Escuela_Militar_de_Ingenieria.svg/1200px-Escudo_de_la_Escuela_Militar_de_Ingenieria.svg.png" alt="Logo EMI" class="logo">
+            <div class="title-container">
+                <h1>EMI WEATHER</h1>
+                <p>Monitoreo Meteorológico en Tiempo Real</p>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <h1>📊 EMI WEATHER</h1>
-        
-        <div class="data-box">
-            <h2>🌡️ Temperatura Actual</h2>
-            <p id="temperature">Cargando...</p>
-        </div>
-        
-        <div class="data-box">
-            <h2>💧 Humedad Actual</h2>
-            <p id="humidity">Cargando...</p>
-        </div>
-        
-        <div class="data-box">
-            <h2>📈 Historial (Últimas 8 horas)</h2>
-            <canvas id="chart"></canvas>
+        <div class="dashboard">
+            <div class="card">
+                <h2><i>🌡️</i> Temperatura Actual</h2>
+                <div class="value" id="temperature">--</div>
+                <div class="unit">°C</div>
+            </div>
+            
+            <div class="card">
+                <h2><i>💧</i> Humedad Actual</h2>
+                <div class="value" id="humidity">--</div>
+                <div class="unit">%</div>
+            </div>
+            
+            <div class="chart-container">
+                <h2>Historial de Datos</h2>
+                <canvas id="chart"></canvas>
+            </div>
         </div>
     </div>
 
+    <footer>
+        ESCUELA MILITAR DE INGENIERÍA "Mcal. Antonio José de Sucre"<br>
+        Prestigio, Disciplina y Mejores Oportunidades
+    </footer>
+
     <script>
         // Configuración de ThingSpeak
-        const CHANNEL_ID = 2984980; // Reemplaza con tu Channel ID
-        const READ_API_KEY = 'IXM9B00GVJ7MRVPL'; // Usa tu READ API Key (de la imagen que compartiste)
+        const CHANNEL_ID = 2984980;
+        const READ_API_KEY = 'IXM9B00GVJ7MRVPL';
         
         // Elementos del DOM
         const tempElement = document.getElementById('temperature');
         const humidityElement = document.getElementById('humidity');
         const ctx = document.getElementById('chart').getContext('2d');
 
-        // Gráfico inicial
+        // Gráfico inicial con estilo EMI
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -70,23 +195,87 @@
                     {
                         label: 'Temperatura (°C)',
                         data: [],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        tension: 0.1
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointBackgroundColor: '#003366',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     },
                     {
                         label: 'Humedad (%)',
                         data: [],
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        tension: 0.1
+                        borderColor: '#003366',
+                        backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointBackgroundColor: '#D4AF37',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }
                 ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Montserrat', sans-serif"
+                            },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 51, 102, 0.9)',
+                        titleFont: {
+                            family: "'Montserrat', sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            family: "'Montserrat', sans-serif",
+                            size: 12
+                        },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: false }
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Montserrat', sans-serif"
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Montserrat', sans-serif"
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
                 }
             }
         });
@@ -102,12 +291,15 @@
                 if (data.feeds && data.feeds.length > 0) {
                     // Datos más recientes
                     const lastFeed = data.feeds[data.feeds.length - 1];
-                    tempElement.textContent = `${lastFeed.field1} °C`;
-                    humidityElement.textContent = `${lastFeed.field2} %`;
+                    tempElement.textContent = parseFloat(lastFeed.field1).toFixed(1);
+                    humidityElement.textContent = parseFloat(lastFeed.field2).toFixed(1);
                     
-                    // Actualizar gráfico (últimas 50 muestras)
-                    const feeds = data.feeds.slice(-20); // Limita a 20 puntos para mejor visualización
-                    chart.data.labels = feeds.map((feed, index) => `Muestra ${index + 1}`);
+                    // Actualizar gráfico
+                    const feeds = data.feeds.slice(-24); // Últimas 24 lecturas
+                    chart.data.labels = feeds.map((feed, index) => {
+                        const date = new Date(feed.created_at);
+                        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                    });
                     chart.data.datasets[0].data = feeds.map(feed => parseFloat(feed.field1));
                     chart.data.datasets[1].data = feeds.map(feed => parseFloat(feed.field2));
                     chart.update();
